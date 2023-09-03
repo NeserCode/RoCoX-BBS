@@ -1,6 +1,7 @@
 import UrlPattern from "url-pattern"
-import { getUserById } from "~/server/db/users"
+import { UserData_Safe, getUserById } from "~/server/db/users"
 import { decodeAccessToken } from "~/server/utils/jwt"
+
 const endpoints = ["/api/auth/user"]
 
 export default defineEventHandler(async (event) => {
@@ -24,7 +25,7 @@ export default defineEventHandler(async (event) => {
 		)
 
 	try {
-		const user = getUserById(decoded.userId)
+		const user: UserData_Safe | null = await getUserById(decoded.userId)
 		event.context.auth = { user }
 	} catch (error) {
 		return

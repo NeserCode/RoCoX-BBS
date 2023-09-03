@@ -12,6 +12,10 @@ export interface UserRegisterData {
 	email: string
 }
 
+export interface UserRegisterRawData extends UserRegisterData {
+	passwordRepeat: string
+}
+
 export interface UserLoginData {
 	username: string
 	password: string

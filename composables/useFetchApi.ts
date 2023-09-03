@@ -1,7 +1,7 @@
-export default <T>(url: string, options: any = {}) => {
+export default (url: string, options: any = {}) => {
 	const { useAuthToken } = useAuth()
 
-	return $fetch<T>(url, {
+	return $fetch(url, {
 		...options,
 		headers: {
 			...options.headers,

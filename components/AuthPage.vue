@@ -13,6 +13,7 @@ const pageState = reactive({
 		passwordRepeat: "",
 		name: "",
 		email: "",
+		avatar: "",
 	},
 	isLogin: true,
 	loading: true,
@@ -24,8 +25,6 @@ const { useToast } = inject(UseToastKey, {
 		set: (_args: any) => {},
 	}),
 })!
-const { toggle, set } = useToast()
-
 const toggleViews = useThrottleFn(() => {
 	pageState.isLogin = !pageState.isLogin
 }, 500)
@@ -61,11 +60,8 @@ onMounted(() => {
 	})
 })
 
-onErrorCaptured((e) => {
-	console.log(e)
-})
-
-const { login } = useAuth()
+const { toggle, set } = useToast()
+const { login, register } = useAuth()
 const loginSubmit = useThrottleFn(() => {
 	login({
 		...pageState.login,
@@ -91,13 +87,45 @@ const loginSubmit = useThrottleFn(() => {
 		})
 }, 300)
 
-const registerSubmit = useThrottleFn(() => {}, 300)
+const registerSubmit = useThrottleFn(() => {
+	register({
+		...pageState.register,
+	})
+		.then((res: any) => {
+			if (res) {
+				set({
+					text: `Register success, login please.`,
+					type: "success",
+				})
+
+				pageState.isLogin = true
+				pageState.login.username = res.username
+			}
+		})
+		.catch((err) => {
+			const { statusCode, statusMessage } = err
+
+			set({
+				text: `#${statusCode} ${statusMessage}`,
+				type: "error",
+			})
+			pageState.register.password = ""
+			pageState.register.passwordRepeat = ""
+		})
+		.finally(() => {
+			toggle()
+		})
+}, 300)
 </script>
 
 <template>
 	<div class="auth-page">
 		<Transition name="slide-left" mode="out-in" appear>
-			<div class="login" v-if="pageState.isLogin">
+			<form
+				class="login"
+				v-if="pageState.isLogin"
+				@submit.prevent="loginSubmit"
+			>
 				<UIInput
 					label="Username"
 					placeholder="username"
@@ -113,6 +141,7 @@ const registerSubmit = useThrottleFn(() => {}, 300)
 				/>
 				<button
 					class="submit"
+					type="submit"
 					:disabled="!btnDisabled"
 					@click="loginSubmit"
 					@keyup.enter="loginSubmit"
@@ -125,8 +154,8 @@ const registerSubmit = useThrottleFn(() => {}, 300)
 					<span class="another" @click="toggleViews">Register</span>
 					<span class="dark-mode" @click="toggleDarkMode">Dark Mode</span>
 				</span>
-			</div>
-			<div class="register" v-else>
+			</form>
+			<form class="register" v-else @submit.prevent="registerSubmit">
 				<UIInput
 					label="Username"
 					placeholder="username"
@@ -162,6 +191,7 @@ const registerSubmit = useThrottleFn(() => {}, 300)
 				/>
 				<button
 					class="submit"
+					type="submit"
 					:disabled="!btnDisabled"
 					@click="registerSubmit"
 					@keyup.enter="registerSubmit"
@@ -174,7 +204,7 @@ const registerSubmit = useThrottleFn(() => {}, 300)
 					<span class="another" @click="toggleViews">Login</span>
 					<span class="dark-mode" @click="toggleDarkMode">Dark Mode</span>
 				</span>
-			</div>
+			</form>
 		</Transition>
 	</div>
 </template>

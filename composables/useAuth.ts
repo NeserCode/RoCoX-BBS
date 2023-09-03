@@ -1,8 +1,13 @@
-import type { UserData_Safe, UserLoginData } from "~/server/db/users"
+import type {
+	UserData_Safe,
+	UserLoginData,
+	UserRegisterRawData,
+} from "~/server/db/users"
 
 export default () => {
 	const useAuthToken = () => useState<string | null>("auth_token")
 	const useAuthUser = () => useState<UserData_Safe | null>("auth_user")
+	const useAuthLoading = () => useState("auth_loading", () => true)
 
 	const setToken = (newToken: string | null) => {
 		const authToken = useAuthToken()
@@ -12,6 +17,11 @@ export default () => {
 	const setUser = (newUser: UserData_Safe | null) => {
 		const authUser = useAuthUser()
 		authUser.value = newUser
+	}
+
+	const setIsAuthLoading = (value: boolean) => {
+		const authLoading = useAuthLoading()
+		authLoading.value = value
 	}
 
 	const login = (data: UserLoginData) => {
@@ -37,6 +47,30 @@ export default () => {
 		})
 	}
 
+	const register = (data: UserRegisterRawData) => {
+		const { username, password, passwordRepeat, name, email, avatar } = data
+
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await $fetch("/api/auth/register", {
+					method: "POST",
+					body: {
+						username,
+						password,
+						passwordRepeat,
+						name,
+						email,
+						avatar,
+					},
+				})
+
+				resolve(data)
+			} catch (error) {
+				reject(error)
+			}
+		})
+	}
+
 	const refreshToken = () => {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -53,9 +87,8 @@ export default () => {
 	const getUser = () => {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const data = await useFetchApi<{ user: UserData_Safe }>(
-					"/api/auth/user"
-				)
+				const data: any = await useFetchApi("/api/auth/user")
+
 				setUser(data.user)
 
 				resolve("OK")
@@ -67,6 +100,7 @@ export default () => {
 
 	const initAuth = () => {
 		return new Promise(async (resolve, reject) => {
+			setIsAuthLoading(true)
 			try {
 				await refreshToken()
 				await getUser()
@@ -74,6 +108,8 @@ export default () => {
 				resolve("OK")
 			} catch (error) {
 				reject(error)
+			} finally {
+				setIsAuthLoading(false)
 			}
 		})
 	}
@@ -97,8 +133,10 @@ export default () => {
 	return {
 		login,
 		logout,
+		register,
 		useAuthUser,
 		useAuthToken,
+		useAuthLoading,
 		initAuth,
 	}
 }
