@@ -26,14 +26,14 @@ export default defineEventHandler(async (event) => {
 			event,
 			createError({
 				statusCode: 400,
-				statusMessage: "Invaild username or password.",
+				statusMessage: "Invaild user.",
 			})
 		)
 	}
 
-	const isPasswordMatch = bcrypt.compareSync(password, user.password)
+	const isPasswordMatch = await bcrypt.compare(password, user.password)
 
-	if (isPasswordMatch) {
+	if (!isPasswordMatch) {
 		return sendError(
 			event,
 			createError({

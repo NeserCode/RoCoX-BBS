@@ -1,5 +1,7 @@
 <script lang="ts" setup>
+import { UseToastKey } from "~/tokens/useToastKey"
 import { FingerPrintIcon, PaperAirplaneIcon } from "@heroicons/vue/24/outline"
+
 const pageState = reactive({
 	login: {
 		username: "",
@@ -13,8 +15,16 @@ const pageState = reactive({
 		email: "",
 	},
 	isLogin: true,
-	loading: false,
+	loading: true,
 })
+
+const { useToast } = inject(UseToastKey, {
+	useToast: () => ({
+		toggle: () => {},
+		set: (_args: any) => {},
+	}),
+})!
+const { toggle, set } = useToast()
 
 const toggleViews = useThrottleFn(() => {
 	pageState.isLogin = !pageState.isLogin
@@ -44,6 +54,44 @@ const btnDisabled = computed(() => {
 		)
 	}
 })
+
+onMounted(() => {
+	nextTick(() => {
+		pageState.loading = false
+	})
+})
+
+onErrorCaptured((e) => {
+	console.log(e)
+})
+
+const { login } = useAuth()
+const loginSubmit = useThrottleFn(() => {
+	login({
+		...pageState.login,
+	})
+		.then((res) => {
+			if (res === "OK")
+				set({
+					text: `Welcome`,
+					type: "success",
+				})
+		})
+		.catch((err) => {
+			const { statusCode, statusMessage } = err
+
+			set({
+				text: `#${statusCode} ${statusMessage}`,
+				type: "error",
+			})
+			pageState.login.password = ""
+		})
+		.finally(() => {
+			toggle()
+		})
+}, 300)
+
+const registerSubmit = useThrottleFn(() => {}, 300)
 </script>
 
 <template>
@@ -63,7 +111,12 @@ const btnDisabled = computed(() => {
 					v-model="pageState.login.password"
 					label-for="ui.input.login.password"
 				/>
-				<button class="submit" :disabled="!btnDisabled">
+				<button
+					class="submit"
+					:disabled="!btnDisabled"
+					@click="loginSubmit"
+					@keyup.enter="loginSubmit"
+				>
 					<span class="text">Login</span>
 					<FingerPrintIcon class="icon" />
 				</button>
@@ -88,12 +141,13 @@ const btnDisabled = computed(() => {
 					label-for="ui.input.register.password"
 				/>
 				<UIInput
-					label="PasswordRepeat"
+					label="Password Repeat"
 					placeholder="repeat password"
 					type="password"
 					v-model="pageState.register.passwordRepeat"
 					label-for="ui.input.register.password-repeat"
-				/>
+				/><br />
+				~
 				<UIInput
 					label="Name"
 					placeholder="Name"
@@ -106,7 +160,12 @@ const btnDisabled = computed(() => {
 					v-model="pageState.register.email"
 					label-for="ui.input.register.email"
 				/>
-				<button class="submit" :disabled="!btnDisabled">
+				<button
+					class="submit"
+					:disabled="!btnDisabled"
+					@click="registerSubmit"
+					@keyup.enter="registerSubmit"
+				>
 					<span class="text">Register</span>
 					<PaperAirplaneIcon class="icon" />
 				</button>
@@ -150,7 +209,7 @@ const btnDisabled = computed(() => {
 	dark:bg-cyan-800 dark:hover:bg-cyan-700 dark:active:bg-green-500
 	focus:ring-2 ring-sky-500 dark:ring-green-500
 	transition-all ease-in-out duration-300 shadow-md outline-none
-	disabled:opacity-60 cursor-not-allowed;
+	disabled:opacity-60 disabled:cursor-not-allowed;
 }
 .submit .icon {
 	@apply w-5 h-5 inline-flex justify-center items-center mx-2 pt-0.5;

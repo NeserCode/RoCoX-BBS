@@ -1,21 +1,22 @@
 import type { UserData_Safe, UserLoginData } from "~/server/db/users"
 
 export default () => {
-	const useAuthToken = () => useState<string>("auth_token")
-	const useAuthUser = () => useState<UserData_Safe>("auth_user")
+	const useAuthToken = () => useState<string | null>("auth_token")
+	const useAuthUser = () => useState<UserData_Safe | null>("auth_user")
 
-	const setToken = (newToken: string) => {
+	const setToken = (newToken: string | null) => {
 		const authToken = useAuthToken()
 		authToken.value = newToken
 	}
 
-	const setUser = (newUser: UserData_Safe) => {
+	const setUser = (newUser: UserData_Safe | null) => {
 		const authUser = useAuthUser()
 		authUser.value = newUser
 	}
 
 	const login = (data: UserLoginData) => {
 		const { username, password } = data
+
 		return new Promise(async (resolve, reject) => {
 			try {
 				const data = await $fetch("/api/auth/login", {
@@ -77,8 +78,25 @@ export default () => {
 		})
 	}
 
+	const logout = () => {
+		return new Promise<void>(async (resolve, reject) => {
+			try {
+				await useFetchApi("/api/auth/logout", {
+					method: "POST",
+				})
+
+				setToken(null)
+				setUser(null)
+				resolve()
+			} catch (error) {
+				reject(error)
+			}
+		})
+	}
+
 	return {
 		login,
+		logout,
 		useAuthUser,
 		useAuthToken,
 		initAuth,

@@ -48,7 +48,7 @@ const inputValue = useVModel($props, "modelValue", $emit)
 
 .input-body {
 	@apply inline-flex justify-center items-center
-  rounded border-2 active:ring-2 shadow-md outline-none
+  rounded border-2 active:ring-2 shadow-md outline-none text-base tracking-normal
   border-sky-300 focus:ring-sky-400 active:ring-sky-400
   dark:border-green-600 dark:focus:ring-green-400 dark:active:ring-green-400
   bg-cyan-50 dark:bg-cyan-950

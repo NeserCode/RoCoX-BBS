@@ -8,14 +8,12 @@ export default defineEventHandler(async (event) => {
 
 	const { username, password, passwordRepeat, email, name } = body
 
-	if (!username || !password || !passwordRepeat || !email || !name) {
-		console.log(username, password, passwordRepeat, email, name)
-
+	if (!username || !password || !email || !name) {
 		return sendError(
 			event,
 			createError({
 				statusCode: 400,
-				statusMessage: "Invaild pramas.",
+				statusMessage: "Invaild pramas: something null.",
 			})
 		)
 	}
