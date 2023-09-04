@@ -12,16 +12,26 @@ const darkMode = useDark({
 
 onBeforeMount(() => {
 	const { set, toggle } = useToast()
-	initAuth().catch((err) => {
-		const { statusCode, statusMessage } = err
-
-		set({
-			text: `#${statusCode} ${statusMessage}`,
-			type: "error",
-			duration: 5000,
+	initAuth()
+		.then(() => {
+			set({
+				text: `Welcome again`,
+				type: "success",
+				duration: 5000,
+			})
 		})
-		toggle()
-	})
+		.catch((err) => {
+			const { statusCode, statusMessage } = err
+
+			set({
+				text: `#${statusCode} ${statusMessage}`,
+				type: "error",
+				duration: 5000,
+			})
+		})
+		.finally(() => {
+			toggle()
+		})
 })
 
 const toastState = reactive({
@@ -43,6 +53,33 @@ const useToast = () => {
 	}
 }
 provide(UseToastKey, { useToast })
+
+// SEO
+useSeoMeta({
+	title: "[title]",
+	description: "[description]",
+	ogTitle: "[og:title]",
+	ogDescription: "[og:description]",
+	ogImage: "[og:image]",
+	ogUrl: "[og:url]",
+	twitterTitle: "[twitter:title]",
+	twitterDescription: "[twitter:description]",
+	twitterImage: "[twitter:image]",
+	twitterCard: "summary",
+})
+
+useHead({
+	htmlAttrs: {
+		lang: "en",
+	},
+	link: [
+		{
+			rel: "icon",
+			type: "image/png",
+			href: "/favicon.png",
+		},
+	],
+})
 </script>
 
 <template>
