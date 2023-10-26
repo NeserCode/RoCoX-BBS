@@ -9,6 +9,9 @@ const darkMode = useDark({
 	selector: "html",
 	disableTransition: false,
 })
+const toggleDarkMode = useThrottleFn(() => {
+	useToggle(darkMode)()
+}, 300)
 
 onBeforeMount(() => {
 	const { set, toggle } = useToast()
@@ -55,18 +58,30 @@ const useToast = () => {
 provide(UseToastKey, { useToast })
 
 // SEO
-useSeoMeta({
-	title: "[title]",
-	description: "[description]",
-	ogTitle: "[og:title]",
-	ogDescription: "[og:description]",
-	ogImage: "[og:image]",
-	ogUrl: "[og:url]",
-	twitterTitle: "[twitter:title]",
-	twitterDescription: "[twitter:description]",
-	twitterImage: "[twitter:image]",
-	twitterCard: "summary",
+const SeoObject = reactive({
+	title: "Login",
+	description: "Nuxt app.",
+	ogTitle: "BBS",
+	ogDescription: "Nuxt app.",
+	// ogImage: "",
+	// ogUrl: "",
 })
+
+watch(
+	user,
+	(value) => {
+		if (value) SeoObject.title = "Home"
+		else SeoObject.title = "Login"
+	},
+	{ immediate: true, deep: true }
+)
+watch(
+	SeoObject,
+	() => {
+		useSeoMeta({ ...SeoObject })
+	},
+	{ immediate: true, deep: true }
+)
 
 useHead({
 	htmlAttrs: {
@@ -88,8 +103,13 @@ useHead({
 			<LoadingPage v-if="isAuthLoading" />
 
 			<div v-else-if="user" class="main-page">
-				<span>Welcome, {{ user.username }}</span>
-				<button @click="logout">logout</button>
+				<div class="user">
+					<img class="avatar" :src="user.avatar?.toString()" alt="avatar" />
+					<span class="username">{{ user.username }}</span>
+
+					<button class="logout-btn danger" @click="logout">logout</button>
+				</div>
+				<span class="darkmode" @click="toggleDarkMode">Dark Mode</span>
 			</div>
 
 			<AuthPage v-else class="auth-page" />
@@ -138,5 +158,29 @@ button {
 	uppercase text-base font-sans font-semibold shadow
 	border-2 rounded border-gray-600 dark:border-gray-400
 	text-gray-700 dark:text-gray-300 bg-slate-200 dark:bg-slate-800;
+}
+.danger {
+	@apply text-red-700 dark:text-red-500 border-red-700 dark:border-red-500;
+}
+
+.darkmode {
+	@apply cursor-pointer underline;
+}
+
+.user {
+	@apply flex items-center justify-center m-2 p-2 gap-2
+	border-2 rounded-full border-gray-500 dark:border-gray-400;
+}
+.avatar {
+	@apply inline-flex justify-center items-center w-12 h-12
+	rounded-full;
+}
+.username {
+	@apply inline-flex justify-center items-center h-12
+	text-lg font-semibold font-sans;
+}
+
+.logout-btn {
+	@apply mx-2 rounded-full;
 }
 </style>
