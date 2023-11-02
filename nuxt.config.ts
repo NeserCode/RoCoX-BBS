@@ -4,7 +4,17 @@ export default defineNuxtConfig({
 		enabled: true,
 	},
 
-	modules: ["@nuxtjs/tailwindcss", "@vueuse/nuxt"],
+	modules: ["@nuxtjs/tailwindcss", "@vueuse/nuxt", "nuxt-socket-io"],
+
+	io: {
+		// module options
+		sockets: [
+			{
+				name: "main",
+				url: "http://localhost:3000",
+			},
+		],
+	},
 
 	runtimeConfig: {
 		accessSecret: process.env.USER_ACCESS_TOKEN_SECRET,

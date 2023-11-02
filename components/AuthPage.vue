@@ -58,6 +58,16 @@ onMounted(() => {
 	nextTick(() => {
 		pageState.loading = false
 	})
+	const app = useNuxtApp()
+
+	const socket = app.$nuxtSocket({
+		channel: "/index",
+		reconnection: false,
+	})
+	socket.emit("hello", "world", (resp: any) => {
+		/* handle resp */
+		console.log(`[::] ${resp}`)
+	})
 })
 
 const { toggle, set } = useToast()
@@ -86,7 +96,6 @@ const loginSubmit = useThrottleFn(() => {
 			toggle()
 		})
 }, 300)
-
 const registerSubmit = useThrottleFn(() => {
 	register({
 		...pageState.register,
@@ -222,7 +231,7 @@ const registerSubmit = useThrottleFn(() => {
 </style>
 <style lang="postcss" scoped>
 .auth-page {
-	@apply flex flex-col w-full mx-auto items-center justify-center
+	@apply flex flex-col w-full min-h-[70vh] mx-auto items-center justify-center
 	py-24;
 }
 .login,

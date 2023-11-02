@@ -24,6 +24,8 @@
 		"@prisma/client": "^5.2.0",
 		"bcrypt": "^5.1.1",
 		"jsonwebtoken": "^9.0.2",
+		"nuxt-socket-io": "^3.0.13",
+		"socket.io": "^4.7.2",
 		"url-pattern": "^1.0.3"
 	}
 }
