@@ -58,16 +58,16 @@ onMounted(() => {
 	nextTick(() => {
 		pageState.loading = false
 	})
-	const app = useNuxtApp()
+	// const app = useNuxtApp()
 
-	const socket = app.$nuxtSocket({
-		channel: "/index",
-		reconnection: false,
-	})
-	socket.emit("hello", "world", (resp: any) => {
-		/* handle resp */
-		console.log(`[::] ${resp}`)
-	})
+	// const socket = app.$nuxtSocket({
+	// 	channel: "/index",
+	// 	reconnection: false,
+	// })
+	// socket.emit("hello", "world", (resp: any) => {
+	// 	/* handle resp */
+	// 	console.log(`[::] ${resp}`)
+	// })
 })
 
 const { toggle, set } = useToast()

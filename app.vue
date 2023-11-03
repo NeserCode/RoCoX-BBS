@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { UseToastKey } from "~/tokens/useToastKey"
+import { io } from "socket.io-client"
 
 const { initAuth, useAuthUser, useAuthLoading, logout } = useAuth()
 const user = useAuthUser()
@@ -67,11 +68,19 @@ const SeoObject = reactive({
 	// ogUrl: "",
 })
 
+const socket = io()
+
+socket.on("message", (data) => {
+	console.log(data)
+})
+
 watch(
 	user,
 	(value) => {
-		if (value) SeoObject.title = "Home"
-		else SeoObject.title = "Login"
+		if (value) {
+			SeoObject.title = "Home"
+			socket.emit("message", "hello!")
+		} else SeoObject.title = "Login"
 	},
 	{ immediate: true, deep: true }
 )
