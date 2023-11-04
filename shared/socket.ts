@@ -1,5 +1,4 @@
 import type { Socket } from "socket.io"
-import type { Socket as ClientSocket } from "socket.io-client"
 
 export type SocketMessage =
 	| string
@@ -26,14 +25,14 @@ export interface SocketMessageData {
 }
 
 export interface ServerToClientEvents {
-	connect: (info: SocketIOInfo) => void
+	connection: (info: SocketIOInfo) => void
 	disconnect: (socket: Socket) => void
 	error: (socket: Socket, error: Error) => void
 	message: (data: SocketMessageData) => void
 }
 
 export interface ClientToServerEvents {
-	connect: (socket: Socket) => void
+	connection: (socket: Socket) => void
 	disconnect: (socket: Socket) => void
 	error: (socket: Socket, error: Error) => void
 	message: (data: SocketMessageData) => void

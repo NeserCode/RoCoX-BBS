@@ -29,6 +29,7 @@ export default defineNuxtModule({
 				InterServerEvents,
 				SocketData
 			>(server ?? 5678, {})
+
 			nuxt.hook("close", () => io.close())
 
 			io.on("connection", (socket) => {

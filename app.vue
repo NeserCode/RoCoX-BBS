@@ -68,7 +68,7 @@ const SeoObject = reactive({
 	// ogUrl: "",
 })
 
-const socket = io()
+const socket = io({})
 
 socket.on("message", (data) => {
 	console.log(data)
